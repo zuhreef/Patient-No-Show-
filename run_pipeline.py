@@ -1,6 +1,7 @@
 from src.ingest import load_raw_data
 from src.validate import validate_columns, validate_basic_rules
 from src.preprocess import preprocess
+from src.train import train_model
 
 
 def main():
@@ -9,15 +10,15 @@ def main():
     validate_basic_rules(df)
 
     X_train, X_test, y_train, y_test, feature_cols = preprocess(df)
+    _, metrics = train_model(X_train, y_train, X_test, y_test, feature_cols)
 
-    print("Preprocessing complete.")
-    print(f"X_train shape: {X_train.shape}")
-    print(f"X_test shape: {X_test.shape}")
-    print(f"y_train shape: {y_train.shape}")
-    print(f"y_test shape: {y_test.shape}")
+    print("Training complete.")
+    print(f"Train shape: {X_train.shape}")
+    print(f"Test shape: {X_test.shape}")
     print(f"Feature count: {len(feature_cols)}")
-    print("First 10 features:")
-    print(feature_cols[:10])
+    print(f"ROC-AUC: {metrics['roc_auc']:.4f}")
+    print("Classification report saved to artifacts/metrics.json")
+    print("Model saved to models/model.pkl")
 
 
 if __name__ == "__main__":
