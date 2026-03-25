@@ -1,33 +1,32 @@
 from pathlib import Path
 import pandas as pd
-import urllib.request
 
 RAW_PATH = Path("data/raw/appointments.csv")
-
-# Public dataset URL (GitHub mirror)
-DATA_URL = "https://raw.githubusercontent.com/joniarroba/noshowappointments/master/KaggleV2-May-2016.csv"
-
-
-def download_data():
-    RAW_PATH.parent.mkdir(parents=True, exist_ok=True)
-    print("Downloading dataset...")
-    urllib.request.urlretrieve(DATA_URL, RAW_PATH)
-    print("Download complete.")
+SAMPLE_PATH = Path("data/reference/appointments_sample.csv")
 
 
 def load_raw_data() -> pd.DataFrame:
     """
-    Load dataset. If not found, download automatically.
+    Load the full local dataset when available.
+    If it's missing, fall back to the committed sample dataset.
     """
-    if not RAW_PATH.exists():
-        download_data()
+    if RAW_PATH.exists():
+        return pd.read_csv(RAW_PATH)
 
-    df = pd.read_csv(RAW_PATH)
-    return df
+    if SAMPLE_PATH.exists():
+        print("Full dataset not found. Using sample dataset.")
+        return pd.read_csv(SAMPLE_PATH)
+
+    raise FileNotFoundError(
+        f"No dataset found. Expected either {RAW_PATH} or {SAMPLE_PATH}."
+    )
 
 
 if __name__ == "__main__":
     df = load_raw_data()
-    print("Loaded raw data successfully.")
+    print("Loaded data successfully.")
     print(f"Shape: {df.shape}")
+    print("Columns:")
+    print(df.columns.tolist())
+    print("\nPreview:")
     print(df.head())
